@@ -11,5 +11,5 @@ Above steps should reproduce 3 containers :
 
 If you wanted to use https, run these command :
 - `docker exec -it docker_akaunting_php_1 php /var/www/akaunting/artisan vendor:publish --provider="Fideloper\Proxy\TrustedProxyServiceProvider"`
-- `docker copy ./nginx/akaunting/config/trustedproxy.php docker_akaunting_php_1:/var/www/html/config/`
+- `docker copy ./nginx/akaunting/config/trustedproxy.php docker_akaunting_php_1:/var/www/akaunting/config/`
 - 
