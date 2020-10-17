@@ -1,15 +1,47 @@
-## How to use
+## How to Compose it
 - Copy `.env.example` to `.env`
-- Modify the above `.env` (use default is okay)
+- Modify the above `.env` as you wish (default is okay)
+- Modify `./nginx/.env` as you need (default is okay)
 - Run `docker-compose up -d`
-- Run `docker cp akaunting/.env docker_akaunting_php_1:/var/www/akaunting/`
-- Akaunting will run on `http://127.0.0.1:8001`
+- Akaunting will live on `http://127.0.0.1:8001` (by default configuration)
 
-Above steps should reproduce 3 containers :
+Above steps should produce these 3 containers (`docker ps`) :
 - docker_akaunting_php_1
 - docker_akaunting_nginx_1
 - docker_akaunting_db_1
 
-If you wanted to use https, run these command :
-- `docker exec -it docker_akaunting_php_1 php /var/www/akaunting/artisan vendor:publish --provider="Fideloper\Proxy\TrustedProxyServiceProvider"`
-- `docker cp akaunting/config/trustedproxy.php docker_akaunting_php_1:/var/www/akaunting/config/`
+## Setup for HTTPS or Reverse Proxy
+
+Run the following commands to use pre-configured trusted proxy configuration :
+
+- Publish TrustedProxy vendor config
+
+```
+docker exec -it docker_akaunting_php_1 \
+    php /var/www/akaunting/artisan vendor:publish \
+    --provider="Fideloper\Proxy\TrustedProxyServiceProvider"
+```
+
+- Copy `trustedproxy.php` from host to the `php` container
+
+```
+docker cp ./nginx/akaunting/config/trustedproxy.php docker_akaunting_php_1:/var/www/akaunting/config/
+```
+
+References: [https://akaunting.com/docs/developer-manual/reverse-proxy](https://akaunting.com/docs/developer-manual/reverse-proxy)
+
+### Nginx
+
+Use the following configuration for Nginx:
+```
+server {
+    server_name akaunting.localhost;
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_pass http://127.0.0.1:8001;
+    }
+}
+```
