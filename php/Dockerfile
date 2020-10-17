@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
-RUN cp /usr/share/i18n/SUPPORTED /etc/locale.gen
-RUN locale-gen
+# RUN cp /usr/share/i18n/SUPPORTED /etc/locale.gen
+# RUN locale-gen
 
 RUN docker-php-ext-install \
     gd \
@@ -32,6 +32,3 @@ RUN docker-php-ext-install \
     pdo_mysql \
     zip
 
-WORKDIR /var/www/akaunting
-
-RUN php artisan key:generate

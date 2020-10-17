@@ -10,4 +10,3 @@ RUN rm akaunting.zip
 RUN find /var/www/akaunting/ -type d -exec chmod 755 {} \;
 RUN find /var/www/akaunting/ -type f -exec chmod 644 {} \;
 
-COPY ./akaunting/.env /var/www/akaunting/

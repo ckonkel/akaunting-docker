@@ -12,9 +12,6 @@ services:
 
   akaunting_php:
     build: ./php
-    depends_on:
-      - akaunting_nginx
-      - akaunting_db
     volumes:
       - app-data:/var/www/akaunting
     restart: unless-stopped
@@ -33,3 +30,4 @@ services:
 volumes:
   app-data:
   db-data:
+
