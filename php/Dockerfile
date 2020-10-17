@@ -31,3 +31,7 @@ RUN docker-php-ext-install \
     pdo_pgsql \
     pdo_mysql \
     zip
+
+WORKDIR /var/www/akaunting
+
+RUN php artisan key:generate

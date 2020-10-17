@@ -1,42 +1,35 @@
 version: '3.7'
 
 services:
-  nginx:
+  akaunting_nginx:
     build: ./nginx
     ports:
-      - 8080:80
+      - ${HOST_PORT}:80
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - app-data:/var/www/akaunting
     restart: unless-stopped
 
-  php:
+  akaunting_php:
     build: ./php
+    depends_on:
+      - akaunting_nginx
+      - akaunting_db
     volumes:
       - app-data:/var/www/akaunting
     restart: unless-stopped
 
-  db:
+  akaunting_db:
     image: mysql:latest
     volumes:
       - db-data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: akaunting_root_password
-      MYSQL_DATABASE: akaunting_db
-      MYSQL_USER: akaunting_admin
-      MYSQL_PASSWORD: akaunting_password
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_USER_PASSWORD}
     command: --default-authentication-plugin=mysql_native_password
 
-
-#    image: postgres:alpine
-#    volumes:
-#      - db-data:/var/lib/postgresql/data
-#    environment:
-#      POSTGRES_DB: akaunting_db
-#      POSTGRES_USER: akaunting_admin
-#      POSTGRES_PASSWORD: akaunting_password
-#    ports:
-#        - "5432:5432"
 volumes:
   app-data:
   db-data:
