@@ -1,9 +1,13 @@
 ## How to Compose it
-- Copy `.env.example` to `.env`
-- Modify the above `.env` as you wish (default is okay)
-- Modify `./nginx/.env` as you need (default is okay)
+- Copy `.env.example` to `.env` and modify as you wish (default is okay)
 - Run `docker-compose up -d`
+- Setting up email by modifying `./akaunting/.env` (default is okay)
+- Run `docker cp akaunting/.env docker_akaunting_php_1:/var/www/akaunting/`
+- Run `docker exec -it docker_akaunting_php_1 chmod 755 /var/www/akaunting/.env`
 - Akaunting will live on `http://127.0.0.1:8001` (by default configuration)
+
+If you got 500 Server Error, you might need :
+`docker exec -it docker_akaunting_php_1 chmod -R 755 /var/www/akaunting/storage/logs`
 
 Above steps should produce these 3 containers (`docker ps`) :
 - docker_akaunting_php_1
