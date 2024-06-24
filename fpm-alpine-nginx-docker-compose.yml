@@ -4,14 +4,17 @@ services:
 
   akaunting:
     container_name: akaunting
-    image: docker.io/akaunting/akaunting:latest
     build:
+      dockerfile: fpm-alpine-nginx.Dockerfile
       context: .
-    ports:
-      - ${HOST_PORT}:80
     volumes:
       - akaunting-data:/var/www/html
+      - ./files/php.ini:/usr/local/etc/php/php.ini
+      - ./files/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     restart: unless-stopped
+    ports:
+      - 8080:80
     env_file:
       - env/run.env
     environment:

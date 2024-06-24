@@ -1,56 +1,81 @@
-## How to Compose it
+# Akaunting Docker Image
 
-#### Setup Compose .env & Up
-- Copy `.env.example` to `.env` and modify (or default)
-- Run `docker-compose up -d`
+You can pull the latest image with `docker pull docker.io/akaunting/akaunting:latest`
 
-#### Setup Akaunting .env
-- Modify `akaunting/.env` (or default)
-- Copy `akaunting/.env` to container by running `docker cp akaunting/.env docker_akaunting_php_1:/var/www/akaunting/`
-- Run `docker exec -it docker_akaunting_php_1 chmod 755 /var/www/akaunting/.env`
-- Access Akaunting: [http://127.0.0.1:8001](http://127.0.0.1:8001)
+## Description
 
-Above steps should produce these 3 containers (`docker ps`) :
-- docker_akaunting_php_1
-- docker_akaunting_nginx_1
-- docker_akaunting_db_1
+This repository defines how the official Akaunting images are built for Docker Hub.
 
-TODO :
-- [ ] ADD `akaunting/.env` directly when building the image
+Akaunting is online, open source and free accounting software built with modern technologies. Track your income and expenses with ease. For more information on Akaunting, please visit the [website](https://akaunting.com).
 
+## Usage
 
-## Setup for HTTPS or Reverse Proxy
+```shell
+git clone https://github.com/akaunting/docker
+cd docker
+cp env/db.env.example env/db.env
+vi env/db.env # and set things
+cp env/run.env.example env/run.env
+vi env/run.env # and set things
 
-Run the following commands to use pre-configured trusted proxy configuration :
-
-- Publish TrustedProxy vendor config
-
-```
-docker exec -it docker_akaunting_php_1 \
-    php /var/www/akaunting/artisan vendor:publish \
-    --provider="Fideloper\Proxy\TrustedProxyServiceProvider"
+AKAUNTING_SETUP=true docker-compose up -d
 ```
 
-- Copy `trustedproxy.php` from host to the `php` container
+Then head to HTTP at port 8080 on the docker-compose host and finish configuring your Akaunting company through the interactive wizard.
+
+After setup is complete, bring the containers down before bringing them back up without the setup variable.
+
+```shell
+docker-compose down
+docker-compose up -d
+```
+
+> Please never use `AKAUNTING_SETUP=true` environment variable again after the first time use.
+
+If you have a database cluster you can take advantage of the following environment variables:
 
 ```
-docker cp ./nginx/akaunting/config/trustedproxy.php docker_akaunting_php_1:/var/www/akaunting/config/
+# In env/run.env put:
+DB_HOST_WRITE: "example-write"
+DB_HOST_READ: "example-read"
 ```
 
-References: [https://akaunting.com/docs/developer-manual/reverse-proxy](https://akaunting.com/docs/developer-manual/reverse-proxy)
+You can use Redis with Akaunting for performance enhancement and scalability, if you have a Redis you can take advantage of the following environment variables:
 
-### Nginx
+```
+# In env/run.env put:
+REDIS_HOST: "example-redis"
+# Switch cache driver to redis
+CACHE_DRIVER: "redis"
+# Switch session driver to redis
+SESSION_DRIVER: "redis"
+# Switch queue driver to redis
+QUEUE_CONNECTION: "redis"
+```
 
-Use the following configuration for Nginx:
+## Extra ways to explore containerized Akaunting!
+This repository contains extra compose and other files that allows you to run Akaunting in different setups like using FPM and NGINX and here is the most important commands that you may need:
+
+```shell
+# Run Akaunting setup that checks for volume files before copying them.
+AKAUNTING_SETUP=true docker-compose -f v-docker-compose.yml up --build
+
+# Run Akaunting with FPM on Debian and use Nginx as external proxy
+AKAUNTING_SETUP=true docker-compose -f fpm-docker-compose.yml up --build
+
+# Run Akaunting using FPM on Alpine and using Nginx as external proxy
+AKAUNTING_SETUP=true docker-compose -f fpm-docker-compose.yml -f fpm-alpine-docker-compose.yml up --build
+
+# Run Akaunting using FPM on Alpine and using Nginx as internal proxy
+AKAUNTING_SETUP=true docker-compose -f fpm-alpine-nginx-docker-compose.yml up --build
+
+# Download Akaunting using git and install composer and npm and run Akaunting using FPM on Alpine and using Nginx as internal proxy
+AKAUNTING_SETUP=true docker-compose -f fpm-alpine-nginx-docker-compose.yml -f fpm-alpine-nginx-composer-docker-compose.yml up --build
+
+# Download Akaunting using git and install composer and npm and run Akaunting using FPM on Alpine and using Nginx as internal proxy and supervisor to manage the queues
+AKAUNTING_SETUP=true docker-compose -f fpm-alpine-nginx-docker-compose.yml -f fpm-alpine-nginx-composer-supervisor-docker-compose.yml up --build
 ```
-server {
-    server_name akaunting.localhost;
-    location / {
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_pass http://127.0.0.1:8001;
-    }
-}
-```
+
+## License
+
+Akaunting is released under the [GPLv3 license](LICENSE.txt).
