@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+
+  akaunting:
+    container_name: akaunting
+    image: docker.io/akaunting/akaunting:latest
+    build:
+      context: .
+    ports:
+      - 8088:80
+    volumes:
+      - akaunting-data:/var/www/html
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    environment:
+      - AKAUNTING_SETUP
+    depends_on:
+      - akaunting-db
+
+  akaunting-db:
+    container_name: akaunting-db
+    image: mariadb
+    volumes:
+      - ${BASE_BIND_PATH}/mariadb:/var/lib/mysql
+    restart: unless-stopped
+    env_file:
+      - env/db.env
+
+volumes:
+  akaunting-data:
+  akaunting-db:
